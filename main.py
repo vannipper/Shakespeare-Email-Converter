@@ -1,22 +1,30 @@
-import transformers
+from transformers import AutoTokenizer, AutoModelForCausalLM, pipeline
 import torch
 
 model_id = "meta-llama/Meta-Llama-3.1-8B-Instruct"
 
-pipeline = transformers.pipeline(
+tokenizer = AutoTokenizer.from_pretrained(model_id)
+
+model = AutoModelForCausalLM.from_pretrained(
+    model_id,
+    device_map="cpu",               # force CPU
+    torch_dtype=torch.float32       # can also try float16 if supported
+)
+
+pipe = pipeline(
     "text-generation",
-    model=model_id,
-    model_kwargs={"torch_dtype": torch.bfloat16},
-    device_map="auto",
+    model=model,
+    tokenizer=tokenizer,
 )
 
-messages = [
-    {"role": "system", "content": "You are a pirate chatbot who always responds in pirate speak!"},
-    {"role": "user", "content": "Who are you?"},
-]
-
-outputs = pipeline(
-    messages,
-    max_new_tokens=256,
+# Format prompt manually for LLaMA-3-style chat
+prompt = (
+    "<|begin_of_text|><|start_header_id|>system<|end_header_id|>\n"
+    "You are a pirate chatbot who always responds in pirate speak!<|eot_id|>"
+    "<|start_header_id|>user<|end_header_id|>\n"
+    "Who are you?<|eot_id|>"
+    "<|start_header_id|>assistant<|end_header_id|>\n"
 )
-print(outputs[0]["generated_text"][-1])
+
+output = pipe(prompt, max_new_tokens=256, do_sample=True)
+print(output[0]["generated_text"])
