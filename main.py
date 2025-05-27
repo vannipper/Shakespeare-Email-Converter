@@ -1,16 +1,22 @@
-from transformers import AutoTokenizer, AutoModelForCausalLM, pipeline
+import transformers
+import torch
 
-model_id = "meta-llama/Meta-Llama-3-8B"
+model_id = "meta-llama/Meta-Llama-3.1-8B-Instruct"
 
-print("Loading model...")
-tokenizer = AutoTokenizer.from_pretrained(model_id, use_auth_token=True)
-model = AutoModelForCausalLM.from_pretrained(model_id, device_map="auto")
+pipeline = transformers.pipeline(
+    "text-generation",
+    model=model_id,
+    model_kwargs={"torch_dtype": torch.bfloat16},
+    device_map="auto",
+)
 
-generator = pipeline("text-generation", model=model, tokenizer=tokenizer)
+messages = [
+    {"role": "system", "content": "You are a pirate chatbot who always responds in pirate speak!"},
+    {"role": "user", "content": "Who are you?"},
+]
 
-prompt = "Explain black holes to a 5-year-old."
-print("Generating...")
-output = generator(prompt, max_new_tokens=100, do_sample=True, temperature=0.7)
-
-print("\n=== Output ===")
-print(output[0]["generated_text"])
+outputs = pipeline(
+    messages,
+    max_new_tokens=256,
+)
+print(outputs[0]["generated_text"][-1])
