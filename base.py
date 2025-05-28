@@ -25,11 +25,11 @@ while True:
 
     prompt = (
         "<|begin_of_text|><|start_header_id|>system<|end_header_id|>\n"
-        "Convert the email message into Shakespearean language.<|eot_id|>"
+        "The first word will be a tone. The rest of the message will be an email message. Convert the email message into Shakespearean language using the indicated tone.<|eot_id|>"
         "<|start_header_id|>user<|end_header_id|>\n"
         f"{user_input}<|eot_id|>"
         "<|start_header_id|>assistant<|end_header_id|>\n"
     )
 
-    output = pipe(prompt, max_new_tokens=50, do_sample=True)
+    output = pipe(prompt, max_new_tokens=128, do_sample=True)
     print(output[0]["generated_text"])
