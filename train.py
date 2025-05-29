@@ -12,7 +12,7 @@ model_id = "meta-llama/Meta-Llama-3.1-8B-Instruct"
 dataset = load_dataset("ayaan04/english-to-shakespeare")
 
 # output dir
-output_dir = "./shakespeare_modelv1"
+output_dir = "./shakespeare_modelv2"
 
 # Format prompts before splitting
 def format_prompt(example):
@@ -24,8 +24,8 @@ def format_prompt(example):
 
 dataset = dataset.map(format_prompt)
 
-# Split into 5% train, 95% eval
-split_dataset = dataset["train"].train_test_split(test_size=0.95, seed=42)
+# Split
+split_dataset = dataset["train"].train_test_split(test_size=0.1, seed=42)
 train_dataset = split_dataset["train"]
 eval_dataset = split_dataset["test"]
 
